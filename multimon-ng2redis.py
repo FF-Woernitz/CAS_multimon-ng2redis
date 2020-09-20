@@ -38,7 +38,7 @@ try:
     redis_lib = RedisMBlib.RedisMB()
 
     rgx_zvei1 = re.compile(reg_zvei1)
-    proc = subprocess.Popen(['/root/multimon-ng/build/multimon-ng', '-c', '-a', 'ZVEI1', '-q'], stdout=subprocess.PIPE)
+    proc = subprocess.Popen(['/opt/multimon-ng/multimon-ng', '-c', '-a', 'ZVEI1', '-q'], stdout=subprocess.PIPE)
     while True:
         line = proc.stdout.readline()
         if not line:
