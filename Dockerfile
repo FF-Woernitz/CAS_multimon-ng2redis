@@ -6,8 +6,13 @@ RUN sed -i 's/^Server/# Server/' /etc/pacman.d/mirrorlist; \
 
 FROM intermediate-pacman AS intermediate-builder
 
-RUN pacman --needed --noconfirm -S make gcc cmake libpulse git; 
+RUN pacman --needed --noconfirm -S make gcc libpulse git;
+ENV CFLAGS="-D_FILE_OFFSET_BITS=64" CXXFLAGS="-D_FILE_OFFSET_BITS=64"
 RUN cd /root; \
+    git clone --depth 1 https://gitlab.kitware.com/cmake/cmake.git; \
+    cd /root/cmake; \
+    ./bootstrap && make && make install; \
+    cd /root; \
     git clone https://github.com/EliasOenal/multimon-ng.git; \
     mkdir /root/multimon-ng/build;
 
