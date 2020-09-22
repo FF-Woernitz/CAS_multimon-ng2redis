@@ -2,17 +2,12 @@ FROM lopsided/archlinux:latest AS intermediate-pacman
 
 RUN sed -i 's/^Server/# Server/' /etc/pacman.d/mirrorlist; \
     echo 'Server = http://de3.mirror.archlinuxarm.org/$arch/$repo' >> /etc/pacman.d/mirrorlist; \
-    pacman -Sy; 
+    pacman -Sy;
 
-FROM intermediate-pacman AS intermediate-builder
+FROM docker.pkg.github.com/ff-woernitz/cas_multimon-ng2redis/cmake-fixed:latest AS intermediate-builder
 
-RUN pacman --needed --noconfirm -S make gcc libpulse git;
-ENV CFLAGS="-D_FILE_OFFSET_BITS=64" CXXFLAGS="-D_FILE_OFFSET_BITS=64"
+RUN pacman --needed --noconfirm -S libpulse git;
 RUN cd /root; \
-    git clone --depth 1 https://gitlab.kitware.com/cmake/cmake.git; \
-    cd /root/cmake; \
-    ./bootstrap && make && make install; \
-    cd /root; \
     git clone https://github.com/EliasOenal/multimon-ng.git; \
     mkdir /root/multimon-ng/build;
 
@@ -23,7 +18,7 @@ RUN make
 
 FROM intermediate-pacman
 
-RUN pacman --needed --noconfirm -S git libpulse python3 python-pip python-redis && pacman --noconfirm -Scc 
+RUN pacman --needed --noconfirm -S git libpulse python3 python-pip python-redis && pacman --noconfirm -Scc
 
 RUN mkdir -p /opt/multimon-ng; \
     mkdir -p /opt/logs; \
