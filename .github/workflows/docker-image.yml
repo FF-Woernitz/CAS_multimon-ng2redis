@@ -34,4 +34,4 @@ jobs:
           file: ./Dockerfile
           platforms: linux/arm/v7
           push: true
-          tags: user/app:latest
+          tags: tobsa/cas_multimon-ng2redis:latest
