@@ -4,7 +4,7 @@ RUN sed -i 's/^Server/# Server/' /etc/pacman.d/mirrorlist; \
     echo 'Server = http://de3.mirror.archlinuxarm.org/$arch/$repo' >> /etc/pacman.d/mirrorlist; \
     pacman -Sy;
 
-FROM docker.pkg.github.com/ff-woernitz/cas_multimon-ng2redis/cmake-fixed:latest AS intermediate-builder
+FROM tobsa/cmake-fixed:latest AS intermediate-builder
 
 RUN pacman --needed --noconfirm -S libpulse git;
 RUN cd /root; \
