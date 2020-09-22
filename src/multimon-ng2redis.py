@@ -48,12 +48,12 @@ try:
         regex_match = rgx_zvei1.match(line)
         if regex_match:
             if not checkIfDoubleAlert(regex_match.groups()[0]):
-                print("send zvei to redis: {}".format(regex_match.groups()[0]))
+                print("send ZVEI to redis: {}".format(regex_match.groups()[0]))
                 redis_lib.newZVEI(regex_match.groups()[0])
             else:
-                print("omit sending zvei to redis as zvei is double: {}".format(regex_match.groups()[0]))
+                print("omit sending ZVEI to redis as ZVEI is double: {}".format(regex_match.groups()[0]))
         else:
-            print("send zvei error to redis: {}".format(line))
+            print("send ZVEI error to redis: {}".format(line))
             redis_lib.errorZVEI(line)
             last_zvei = ""
 except KeyboardInterrupt:
