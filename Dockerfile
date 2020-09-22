@@ -24,12 +24,11 @@ RUN mkdir -p /opt/multimon-ng; \
     mkdir -p /opt/logs; \
     python3 -m pip install git+https://github.com/FF-Woernitz/CAS_RedisMB.git; \
     mkdir /opt/multimon-ng2redis; \
-    cp src/multimon-ng2redis.py /opt/multimon-ng2redis/; \
-    cp src/client.conf /etc/pulse/; \
     groupadd -r python && useradd --no-log-init -r -g python python
 
 COPY --from=intermediate-builder /root/multimon-ng/build/multimon-ng /opt/multimon-ng
-
+COPY src/multimon-ng2redis.py /opt/multimon-ng2redis/ \
+COPY src/client.conf /etc/pulse/ \
 WORKDIR /opt/multimon-ng2redis
 USER python:python
 
