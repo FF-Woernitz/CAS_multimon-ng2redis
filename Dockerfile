@@ -6,7 +6,7 @@ RUN sed -i 's/^Server/# Server/' /etc/pacman.d/mirrorlist; \
 
 FROM tobsa/cmake-fixed:latest AS intermediate-builder
 
-RUN pacman --needed --noconfirm -S libpulse git;
+RUN pacman -Sy && pacman --needed --noconfirm -S libpulse git;
 RUN cd /root; \
     git clone https://github.com/EliasOenal/multimon-ng.git; \
     mkdir /root/multimon-ng/build;
