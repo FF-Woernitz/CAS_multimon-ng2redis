@@ -22,9 +22,11 @@ RUN pacman --needed --noconfirm -S git libpulse python3 python-pip python-redis 
 
 RUN mkdir -p /opt/multimon-ng; \
     mkdir -p /opt/logs; \
-    python3 -m pip install git+https://github.com/FF-Woernitz/CAS_lib.git; \
     mkdir /opt/multimon-ng2redis; \
     groupadd -r python && useradd --no-log-init -r -g python python
+
+ADD "https://www.random.org/cgi-bin/randbyte?nbytes=10&format=h" skipcache
+RUN python3 -m pip install git+https://github.com/FF-Woernitz/CAS_lib.git;
 
 COPY --from=intermediate-builder /root/multimon-ng/build/multimon-ng /opt/multimon-ng
 COPY src/multimon-ng2redis.py /opt/multimon-ng2redis/
