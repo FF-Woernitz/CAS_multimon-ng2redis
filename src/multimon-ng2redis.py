@@ -2,7 +2,7 @@ import re
 import signal
 import subprocess
 import time
-import RedisMBlib
+from CASlib import RedisMB
 from datetime import datetime
 
 reg_zvei1 = r'ZVEI1\:\s(\d{5})'
@@ -39,7 +39,7 @@ def checkIfDoubleAlert(zvei):
     return False
 
 try:
-    redis_lib = RedisMBlib.RedisMB()
+    redis_lib = RedisMB.RedisMB()
 
     rgx_zvei1 = re.compile(reg_zvei1)
     proc = subprocess.Popen(['/opt/multimon-ng/multimon-ng', '-c', '-a', 'ZVEI1', '-q'], stdout=subprocess.PIPE)

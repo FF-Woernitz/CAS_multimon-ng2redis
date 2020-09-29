@@ -22,7 +22,7 @@ RUN pacman --needed --noconfirm -S git libpulse python3 python-pip python-redis 
 
 RUN mkdir -p /opt/multimon-ng; \
     mkdir -p /opt/logs; \
-    python3 -m pip install git+https://github.com/FF-Woernitz/CAS_RedisMB.git; \
+    python3 -m pip install git+https://github.com/FF-Woernitz/CAS_lib.git; \
     mkdir /opt/multimon-ng2redis; \
     groupadd -r python && useradd --no-log-init -r -g python python
 
