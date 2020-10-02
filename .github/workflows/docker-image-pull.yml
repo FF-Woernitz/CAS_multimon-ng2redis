@@ -1,8 +1,12 @@
-name: Docker Image CI
+name: Docker Image CI pullrequest
 
 on:
   push:
-    branches: [ '!master' ]
+    branches:
+      - '!master'
+  pull_request:
+    branches:
+      - 'master'
 
 jobs:
   path-context:
