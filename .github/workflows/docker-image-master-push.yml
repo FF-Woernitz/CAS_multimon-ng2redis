@@ -32,4 +32,3 @@ jobs:
           platforms: linux/arm/v7
           push: true
           tags: tobsa/cas_multimon-ng2redis:latest
-
