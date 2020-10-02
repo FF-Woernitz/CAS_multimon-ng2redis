@@ -1,0 +1,2 @@
+Logbook~=1.5.3
+git+https://github.com/FF-Woernitz/CAS_lib.git#egg=CASlib
