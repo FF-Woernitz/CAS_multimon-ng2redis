@@ -1,8 +1,8 @@
-name: Docker Image CI
+name: Docker Image CI pullrequest
 
 on:
-  push:
-    branches: [ '!master' ]
+  pull_request:
+    types: [opened, synchronize, reopened]
 
 jobs:
   path-context:
