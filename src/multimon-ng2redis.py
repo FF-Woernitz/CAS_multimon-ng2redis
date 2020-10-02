@@ -43,14 +43,14 @@ try:
         if not line:
             break
         line = line.decode('ascii').strip()
-        log.log(NOTICE, "new data: {}".format(line))
+        log.log(INFO, "new data: {}".format(line))
         regex_match = rgx_zvei1.match(line)
         if regex_match:
             if not checkIfDoubleAlert(regex_match.groups()[0]):
-                log.log(NOTICE, "send ZVEI to redis: {}".format(regex_match.groups()[0]))
+                log.log(INFO, "send ZVEI to redis: {}".format(regex_match.groups()[0]))
                 redis_lib.newZVEI(regex_match.groups()[0])
             else:
-                log.log(NOTICE, "omit sending ZVEI to redis as ZVEI is double: {}".format(regex_match.groups()[0]))
+                log.log(INFO, "omit sending ZVEI to redis as ZVEI is double: {}".format(regex_match.groups()[0]))
         else:
             log.log(WARNING, "send ZVEI error to redis: {}".format(line))
             redis_lib.errorZVEI(line)
