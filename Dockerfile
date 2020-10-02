@@ -1,10 +1,10 @@
-FROM lopsided/archlinux:latest AS intermediate-pacman
+FROM lopsided/archlinux:latest AS intermediate-pacman:latest
 
 RUN sed -i 's/^Server/# Server/' /etc/pacman.d/mirrorlist; \
     echo 'Server = http://de3.mirror.archlinuxarm.org/$arch/$repo' >> /etc/pacman.d/mirrorlist; \
     pacman -Sy;
 
-FROM tobsa/cmake-fixed:latest AS intermediate-builder
+FROM tobsa/cmake-fixed:latest AS intermediate-builder:latest
 
 RUN pacman -Sy && pacman --needed --noconfirm -S libpulse git;
 
@@ -18,7 +18,7 @@ WORKDIR /root/multimon-ng/build
 RUN cmake ..
 RUN make
 
-FROM intermediate-pacman
+FROM intermediate-pacman:latest
 
 RUN pacman --needed --noconfirm -S git libpulse python3 python-pip python-redis && pacman --noconfirm -Scc
 
