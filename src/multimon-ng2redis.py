@@ -5,7 +5,7 @@ from logbook import INFO, NOTICE, WARNING
 log = Logger.Logger("multimon-ng2redis").getLogger()
 reg_zvei1 = r'ZVEI1\:\s(\d{5})'
 
-log(INFO, "starting multimon-ng2redis...")
+log.log(INFO, "starting multimon-ng2redis...")
 
 def signalhandler(signum, frame):
     log.log(INFO, 'Signal handler called with signal {}'.format(signum))
