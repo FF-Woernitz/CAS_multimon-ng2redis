@@ -9,7 +9,7 @@ FROM tobsa/cmake-fixed:latest AS intermediate-builder
 RUN pacman -Sy && pacman --needed --noconfirm -S libpulse git; \
     cd /root;
 
-ADD "https://www.random.org/cgi-bin/randbyte?nbytes=10&format=h" skipcache
+ADD "https://api.github.com/repos/EliasOenal/multimon-ng/git/refs/heads/master" skipcache
 RUN git clone https://github.com/EliasOenal/multimon-ng.git; \
     mkdir /root/multimon-ng/build;
 
@@ -27,7 +27,7 @@ RUN mkdir -p /opt/multimon-ng; \
     mkdir /opt/multimon-ng2redis; \
     groupadd -r python && useradd --no-log-init -r -g python python
 
-ADD "https://www.random.org/cgi-bin/randbyte?nbytes=10&format=h" skipcache
+ADD "https://api.github.com/repos/FF-Woernitz/CAS_lib/git/refs/heads/master" skipcache
 RUN python3 -m pip install git+https://github.com/FF-Woernitz/CAS_lib.git;
 
 COPY --from=intermediate-builder /root/multimon-ng/build/multimon-ng /opt/multimon-ng

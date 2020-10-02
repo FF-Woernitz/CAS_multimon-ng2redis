@@ -1,25 +1,20 @@
-import re
-import signal
-import subprocess
-import time
-from CASlib import RedisMB
-from datetime import datetime
+import re, signal, subprocess, time
+from CASlib import Logger, RedisMB
+from logbook import INFO, NOTICE, WARNING
 
+log = Logger.Logger("multimon-ng2redis").getLogger()
 reg_zvei1 = r'ZVEI1\:\s(\d{5})'
 
-print("starting multimon-ng2redis...")
-
-def log(log):
-    print(datetime.now(), log)
+log(INFO, "starting multimon-ng2redis...")
 
 def signalhandler(signum, frame):
-    log('Signal handler called with signal {}'.format(signum))
+    log.log(INFO, 'Signal handler called with signal {}'.format(signum))
     try:
         proc.kill()
         redis_lib.exit()
     except:
         pass
-    log('exiting...')
+    log.log(NOTICE, 'exiting...')
     exit()
 signal.signal(signal.SIGTERM, signalhandler)
 signal.signal(signal.SIGHUP, signalhandler)
@@ -48,16 +43,16 @@ try:
         if not line:
             break
         line = line.decode('ascii').strip()
-        log("new data: {}".format(line))
+        log.log(NOTICE, "new data: {}".format(line))
         regex_match = rgx_zvei1.match(line)
         if regex_match:
             if not checkIfDoubleAlert(regex_match.groups()[0]):
-                log("send ZVEI to redis: {}".format(regex_match.groups()[0]))
+                log.log(NOTICE, "send ZVEI to redis: {}".format(regex_match.groups()[0]))
                 redis_lib.newZVEI(regex_match.groups()[0])
             else:
-                log("omit sending ZVEI to redis as ZVEI is double: {}".format(regex_match.groups()[0]))
+                log.log(NOTICE, "omit sending ZVEI to redis as ZVEI is double: {}".format(regex_match.groups()[0]))
         else:
-            log("send ZVEI error to redis: {}".format(line))
+            log.log(WARNING, "send ZVEI error to redis: {}".format(line))
             redis_lib.errorZVEI(line)
             last_zvei = ""
 except KeyboardInterrupt:
