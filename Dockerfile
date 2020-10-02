@@ -18,22 +18,18 @@ WORKDIR /root/multimon-ng/build
 RUN cmake ..
 RUN make
 
-FROM intermediate-pacman
+FROM python:3-alpine
 
-RUN pacman --needed --noconfirm -S git libpulse python3 python-pip python-redis && pacman --noconfirm -Scc
-
-RUN mkdir -p /opt/multimon-ng; \
-    mkdir -p /opt/logs; \
-    mkdir /opt/multimon-ng2redis; \
-    groupadd -r python && useradd --no-log-init -r -g python python
-
-ADD "https://api.github.com/repos/FF-Woernitz/CAS_lib/git/refs/heads/master" skipcache
-RUN python3 -m pip install git+https://github.com/FF-Woernitz/CAS_lib.git;
+RUN apk add --no-cache git
 
 COPY --from=intermediate-builder /root/multimon-ng/build/multimon-ng /opt/multimon-ng
-COPY src/multimon-ng2redis.py /opt/multimon-ng2redis/
-COPY src/client.conf /etc/pulse/
+COPY src/pulse_client.conf /etc/pulse/client.conf
+
 WORKDIR /opt/multimon-ng2redis
-USER python:python
+COPY requirements.txt .
+COPY src ./
+
+ADD "https://api.github.com/repos/FF-Woernitz/CAS_lib/git/refs/heads/master" skipcache
+RUN pip install --no-cache-dir -r requirements.txt
 
 ENTRYPOINT ["python3", "-u", "multimon-ng2redis.py"]
