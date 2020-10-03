@@ -20,20 +20,18 @@ RUN make
 
 FROM intermediate-pacman
 
-RUN pacman --needed --noconfirm -S git libpulse python3 python-pip python-redis && pacman --noconfirm -Scc
+COPY --from=intermediate-builder /root/multimon-ng/build/multimon-ng /opt/multimon-ng/multimon-ng
+COPY src/pulse_client.conf /etc/pulse/client.conf
 
-RUN mkdir -p /opt/multimon-ng; \
-    mkdir -p /opt/logs; \
-    mkdir /opt/multimon-ng2redis; \
-    groupadd -r python && useradd --no-log-init -r -g python python
+RUN pacman --needed --noconfirm -S git libpulse python3 python-pip && pacman --noconfirm -Scc
+RUN groupadd -r python && useradd --no-log-init -r -g python python
+
+WORKDIR /opt/multimon-ng2redis
+COPY requirements.txt .
+COPY src ./
 
 ADD "https://api.github.com/repos/FF-Woernitz/CAS_lib/git/refs/heads/master" skipcache
-RUN python3 -m pip install git+https://github.com/FF-Woernitz/CAS_lib.git;
+RUN pip install --no-cache-dir -r requirements.txt
 
-COPY --from=intermediate-builder /root/multimon-ng/build/multimon-ng /opt/multimon-ng
-COPY src/multimon-ng2redis.py /opt/multimon-ng2redis/
-COPY src/client.conf /etc/pulse/
-WORKDIR /opt/multimon-ng2redis
 USER python:python
-
-ENTRYPOINT ["python3", "-u", "multimon-ng2redis.py"]
+CMD ["python3", "-u", "multimon-ng2redis.py"]
