@@ -7,6 +7,7 @@ reg_zvei1 = r'ZVEI1\:\s(\d{5})'
 
 log.log(INFO, "starting multimon-ng2redis...")
 
+
 def signalhandler(signum, frame):
     log.log(INFO, 'Signal handler called with signal {}'.format(signum))
     try:
@@ -16,11 +17,14 @@ def signalhandler(signum, frame):
         pass
     log.log(NOTICE, 'exiting...')
     exit()
+
+
 signal.signal(signal.SIGTERM, signalhandler)
 signal.signal(signal.SIGHUP, signalhandler)
 
 last_zvei = ""
 last_zvei_time = 0.0
+
 
 def checkIfDoubleAlert(zvei):
     global last_zvei, last_zvei_time
@@ -32,6 +36,7 @@ def checkIfDoubleAlert(zvei):
     last_zvei_time = time.time()
 
     return False
+
 
 try:
     redis_lib = RedisMB.RedisMB()
@@ -57,4 +62,3 @@ try:
             last_zvei = ""
 except KeyboardInterrupt:
     signalhandler("KeyboardInterrupt", None)
-
