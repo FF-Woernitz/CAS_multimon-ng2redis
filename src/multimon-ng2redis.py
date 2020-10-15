@@ -1,8 +1,10 @@
 import re, signal, subprocess, time
-from CASlib import Logger, RedisMB
+from CASlib import Logger, RedisMB, Config
 from logbook import INFO, NOTICE, WARNING
 
 log = Logger.Logger("multimon-ng2redis").getLogger()
+config = Config.Config().getConfig()
+
 reg_zvei1 = r'ZVEI1\:\s(\d{5})'
 
 log.log(INFO, "starting multimon-ng2redis...")
@@ -53,7 +55,10 @@ try:
         if regex_match:
             if not checkIfDoubleAlert(regex_match.groups()[0]):
                 log.log(INFO, "send ZVEI to redis: {}".format(regex_match.groups()[0]))
-                redis_lib.newZVEI(regex_match.groups()[0])
+                redis_lib.inputZVEI(regex_match.groups()[0])
+                for key, config in config['trigger'].items():
+                    if key == zvei:
+                        redis_lib.alertZVEI(regex_match.groups()[0])
             else:
                 log.log(INFO, "omit sending ZVEI to redis as ZVEI is double: {}".format(regex_match.groups()[0]))
         else:
