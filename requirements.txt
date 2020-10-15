@@ -1,2 +1,4 @@
 Logbook~=1.5.3
+pytz~=2020.1
+tzlocal~=2.1
 git+https://github.com/FF-Woernitz/CAS_lib.git#egg=CASlib

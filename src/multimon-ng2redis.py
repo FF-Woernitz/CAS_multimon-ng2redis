@@ -1,6 +1,8 @@
 import re, signal, subprocess, time
 from CASlib import Logger, RedisMB, Config
 from logbook import INFO, NOTICE, WARNING
+from datetime import datetime, time
+from pytz import timezone
 
 log = Logger.Logger("multimon-ng2redis").getLogger()
 config = Config.Config().getConfig()
@@ -39,6 +41,11 @@ def checkIfDoubleAlert(zvei):
 
     return False
 
+def isTestAlert(trigger):
+    begin_time = time(trigger["testalarm"]["hour_start"], trigger["testalarm"]["minute_start"])
+    end_time = time(trigger["testalarm"]["hour_end"], trigger["testalarm"]["minute_end"])
+    now = datetime.now(timezone("Europe/Berlin"))
+    return now.weekday() == trigger["testalarm"]["weekday"] and begin_time <= now.time() <= end_time
 
 try:
     redis_lib = RedisMB.RedisMB()
@@ -53,14 +60,18 @@ try:
         log.log(INFO, "new data: {}".format(line))
         regex_match = rgx_zvei1.match(line)
         if regex_match:
-            if not checkIfDoubleAlert(regex_match.groups()[0]):
-                log.log(INFO, "send ZVEI to redis: {}".format(regex_match.groups()[0]))
-                redis_lib.inputZVEI(regex_match.groups()[0])
+            zvei = regex_match.groups()[0]
+            if not checkIfDoubleAlert(zvei):
+                log.log(INFO, "send ZVEI to redis: {}".format(zvei))
+                redis_lib.inputZVEI(zvei)
                 for key, config in config['trigger'].items():
                     if key == zvei:
-                        redis_lib.alertZVEI(regex_match.groups()[0])
+                        if isTestAlert(config):
+                            redis_lib.testalertZVEI(zvei)
+                        else:
+                            redis_lib.alertZVEI(zvei)
             else:
-                log.log(INFO, "omit sending ZVEI to redis as ZVEI is double: {}".format(regex_match.groups()[0]))
+                log.log(INFO, "omit sending ZVEI to redis as ZVEI is double: {}".format(zvei))
         else:
             log.log(WARNING, "send ZVEI error to redis: {}".format(line))
             redis_lib.errorZVEI(line)
