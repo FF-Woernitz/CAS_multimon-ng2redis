@@ -64,9 +64,9 @@ try:
             if not checkIfDoubleAlert(zvei):
                 log.log(INFO, "send ZVEI to redis: {}".format(zvei))
                 redis_lib.inputZVEI(zvei)
-                for key, config in config['trigger'].items():
+                for key, config_trigger in config['trigger'].items():
                     if key == zvei:
-                        if isTestAlert(config):
+                        if isTestAlert(config_trigger):
                             redis_lib.testalertZVEI(zvei)
                         else:
                             redis_lib.alertZVEI(zvei)
