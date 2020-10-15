@@ -1,7 +1,7 @@
 import re, signal, subprocess, time
 from CASlib import Logger, RedisMB, Config
 from logbook import INFO, NOTICE, WARNING
-from datetime import datetime, time
+from datetime import datetime, time as dtime
 from pytz import timezone
 
 log = Logger.Logger("multimon-ng2redis").getLogger()
@@ -42,8 +42,8 @@ def checkIfDoubleAlert(zvei):
     return False
 
 def isTestAlert(trigger):
-    begin_time = time(trigger["testalarm"]["hour_start"], trigger["testalarm"]["minute_start"])
-    end_time = time(trigger["testalarm"]["hour_end"], trigger["testalarm"]["minute_end"])
+    begin_time = dtime(trigger["testalarm"]["hour_start"], trigger["testalarm"]["minute_start"])
+    end_time = dtime(trigger["testalarm"]["hour_end"], trigger["testalarm"]["minute_end"])
     now = datetime.now(timezone("Europe/Berlin"))
     return now.weekday() == trigger["testalarm"]["weekday"] and begin_time <= now.time() <= end_time
 
