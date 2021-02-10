@@ -2,11 +2,11 @@ FROM lopsided/archlinux:latest AS intermediate-pacman
 
 RUN sed -i 's/^Server/# Server/' /etc/pacman.d/mirrorlist; \
     echo 'Server = http://de3.mirror.archlinuxarm.org/$arch/$repo' >> /etc/pacman.d/mirrorlist; \
-    pacman -Sy;
+    pacman -Syu;
 
 FROM intermediate-pacman AS intermediate-builder
 
-RUN pacman -Sy && pacman --needed --noconfirm -S libpulse git;
+RUN pacman --needed --noconfirm -S libpulse git;
 
 ADD "https://api.github.com/repos/EliasOenal/multimon-ng/git/refs/heads/master" skipcache
 RUN cd /root; \
@@ -23,7 +23,9 @@ FROM intermediate-pacman
 COPY --from=intermediate-builder /root/multimon-ng/build/multimon-ng /opt/multimon-ng/multimon-ng
 COPY src/pulse_client.conf /etc/pulse/client.conf
 
-RUN pacman --needed --noconfirm -S git libpulse python3 python-pip && pacman --noconfirm -Scc
+RUN pacman --needed --noconfirm -S git libpulse python3 python-pip
+RUN pacman --noconfirm -Scc
+
 RUN groupadd -r -g 800 cas && useradd --no-log-init -r -u 800 -g cas cas
 
 WORKDIR /opt/multimon-ng2redis
