@@ -9,9 +9,9 @@ FROM intermediate-pacman AS intermediate-builder
 RUN pacman --needed --noconfirm -S libpulse git base-devel cmake;
 
 ADD "https://api.github.com/repos/EliasOenal/multimon-ng/git/refs/heads/master" skipcache
-RUN cd /root; \
-    git clone https://github.com/EliasOenal/multimon-ng.git; \
-    mkdir /root/multimon-ng/build;
+RUN cd /root;
+RUN git clone https://github.com/EliasOenal/multimon-ng.git;
+RUN mkdir /root/multimon-ng/build;
 
 WORKDIR /root/multimon-ng/build
 
