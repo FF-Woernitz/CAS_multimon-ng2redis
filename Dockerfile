@@ -4,7 +4,7 @@ RUN sed -i 's/^Server/# Server/' /etc/pacman.d/mirrorlist; \
     echo 'Server = http://de3.mirror.archlinuxarm.org/$arch/$repo' >> /etc/pacman.d/mirrorlist; \
     pacman -Sy;
 
-FROM tobsa/cmake-fixed:latest AS intermediate-builder
+FROM intermediate-pacman AS intermediate-builder
 
 RUN pacman -Sy && pacman --needed --noconfirm -S libpulse git;
 
