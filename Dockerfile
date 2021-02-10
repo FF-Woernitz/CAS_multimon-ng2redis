@@ -1,8 +1,8 @@
 FROM lopsided/archlinux:latest AS intermediate-pacman
 
-RUN sed -i 's/^Server/# Server/' /etc/pacman.d/mirrorlist; \
-    echo 'Server = http://de3.mirror.archlinuxarm.org/$arch/$repo' >> /etc/pacman.d/mirrorlist; \
-    pacman -Syu;
+RUN sed -i 's/^Server/# Server/' /etc/pacman.d/mirrorlist;
+RUN echo 'Server = http://de3.mirror.archlinuxarm.org/$arch/$repo' >> /etc/pacman.d/mirrorlist;
+RUN pacman --needed --noconfirm -Syu;
 
 FROM intermediate-pacman AS intermediate-builder
 
