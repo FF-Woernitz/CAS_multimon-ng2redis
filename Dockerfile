@@ -1,17 +1,17 @@
 FROM lopsided/archlinux:latest AS intermediate-pacman
 
-RUN sed -i 's/^Server/# Server/' /etc/pacman.d/mirrorlist;
-RUN echo 'Server = http://de3.mirror.archlinuxarm.org/$arch/$repo' >> /etc/pacman.d/mirrorlist;
-RUN pacman --needed --noconfirm -Syu;
+RUN sed -i 's/^Server/# Server/' /etc/pacman.d/mirrorlist
+RUN echo 'Server = http://de3.mirror.archlinuxarm.org/$arch/$repo' >> /etc/pacman.d/mirrorlist
+RUN pacman --needed --noconfirm -Syu
 
 FROM intermediate-pacman AS intermediate-builder
 
 RUN pacman --needed --noconfirm -S libpulse git base-devel cmake;
 
 ADD "https://api.github.com/repos/EliasOenal/multimon-ng/git/refs/heads/master" skipcache
-RUN cd /root;
-RUN git clone https://github.com/EliasOenal/multimon-ng.git;
-RUN mkdir /root/multimon-ng/build;
+RUN cd /root
+RUN git clone https://github.com/EliasOenal/multimon-ng.git
+RUN mkdir /root/multimon-ng/build
 
 WORKDIR /root/multimon-ng/build
 
