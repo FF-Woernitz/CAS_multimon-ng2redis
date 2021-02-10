@@ -6,7 +6,7 @@ RUN sed -i 's/^Server/# Server/' /etc/pacman.d/mirrorlist; \
 
 FROM intermediate-pacman AS intermediate-builder
 
-RUN pacman --needed --noconfirm -S libpulse git;
+RUN pacman --needed --noconfirm -S libpulse git base-devel cmake;
 
 ADD "https://api.github.com/repos/EliasOenal/multimon-ng/git/refs/heads/master" skipcache
 RUN cd /root; \
