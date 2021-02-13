@@ -1,13 +1,6 @@
-FROM lopsided/archlinux:latest AS intermediate-pacman
+FROM lopsided/archlinux:devel  AS intermediate-builder
 
-RUN df -h
-RUN sed -i 's/^Server/# Server/' /etc/pacman.d/mirrorlist
-RUN echo 'Server = http://de3.mirror.archlinuxarm.org/$arch/$repo' >> /etc/pacman.d/mirrorlist
-RUN pacman --needed --noconfirm -Syu
-
-FROM intermediate-pacman AS intermediate-builder
-
-RUN pacman --needed --noconfirm -S libpulse git base-devel cmake;
+RUN pacman --needed --noconfirm -Sy libpulse git cmake;
 
 RUN df -h
 ADD "https://api.github.com/repos/EliasOenal/multimon-ng/git/refs/heads/master" skipcache
@@ -22,12 +15,12 @@ RUN df -h
 RUN cmake ..
 RUN make
 
-FROM intermediate-pacman
+FROM lopsided/archlinux:latest
 
 COPY --from=intermediate-builder /root/multimon-ng/build/multimon-ng /opt/multimon-ng/multimon-ng
 COPY src/pulse_client.conf /etc/pulse/client.conf
 RUN df -h
-RUN pacman --needed --noconfirm -S git libpulse python3 python-pip
+RUN pacman --needed --noconfirm -Sy git libpulse python3 python-pip
 RUN pacman --noconfirm -Scc
 
 RUN groupadd -r -g 800 cas && useradd --no-log-init -r -u 800 -g cas cas
