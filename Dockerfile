@@ -1,5 +1,5 @@
 FROM lopsided/archlinux:devel  AS intermediate-builder
-
+RUN df -h
 RUN pacman --needed --noconfirm -Syu libpulse git cmake;
 
 RUN df -h
