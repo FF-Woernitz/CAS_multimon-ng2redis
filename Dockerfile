@@ -1,6 +1,6 @@
 FROM lopsided/archlinux:devel  AS intermediate-builder
 RUN df -h
-RUN pacman --needed --noconfirm -Syu libpulse git cmake;
+RUN pacman --needed --noconfirm -Syu libpulse git cmake ca-certificates ca-certificates-utils;
 
 RUN df -h
 ADD "https://api.github.com/repos/EliasOenal/multimon-ng/git/refs/heads/master" skipcache

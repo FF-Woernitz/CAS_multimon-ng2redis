@@ -15,17 +15,6 @@ jobs:
     steps:
       - name: show disk space
         run: sudo df -h
-      - name: Free disk space
-        run: sudo rm -rf "/usr/local/share/boost"; sudo rm -rf "$AGENT_TOOLSDIRECTORY"
-      - name: check disk space files
-        run: sudo find / -type f -exec du -Sh {} + | sort -rh | head -n 50
-      - name: check disk space dirs
-        run: sudo du -Sh / | sort -rh | head -50
-      - name: show disk space
-        run: sudo df -h
-
-
-
 
       - name: Checkout
         uses: actions/checkout@v2
