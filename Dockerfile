@@ -1,4 +1,4 @@
-FROM lopsided/archlinux:devel  AS intermediate-builder
+FROM tobsa/archlinux:devel  AS intermediate-builder
 RUN df -h
 RUN pacman --needed --noconfirm -Syu libpulse git cmake ca-certificates ca-certificates-utils;
 
@@ -16,7 +16,7 @@ RUN df -h
 RUN cmake ..
 RUN make
 
-FROM lopsided/archlinux:latest
+FROM tobsa/archlinux:latest
 
 COPY --from=intermediate-builder /root/multimon-ng/build/multimon-ng /opt/multimon-ng/multimon-ng
 COPY src/pulse_client.conf /etc/pulse/client.conf
