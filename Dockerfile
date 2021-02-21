@@ -5,7 +5,7 @@ RUN pacman --needed --noconfirm -Syu libpulse git cmake ca-certificates ca-certi
 RUN df -h
 ADD "https://api.github.com/repos/EliasOenal/multimon-ng/git/refs/heads/master" skipcache
 RUN cd /root
-RUN git -c http.sslVerify=false clone https://github.com/EliasOenal/multimon-ng.git /root/multimon-ng
+RUN git clone https://github.com/EliasOenal/multimon-ng.git /root/multimon-ng
 RUN ls /root
 RUN mkdir /root/multimon-ng/build
 RUN df -h
