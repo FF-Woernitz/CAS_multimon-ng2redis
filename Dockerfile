@@ -1,29 +1,24 @@
-FROM lopsided/archlinux:latest AS intermediate-pacman
-
-RUN sed -i 's/^Server/# Server/' /etc/pacman.d/mirrorlist; \
-    echo 'Server = http://de3.mirror.archlinuxarm.org/$arch/$repo' >> /etc/pacman.d/mirrorlist; \
-    pacman -Sy;
-
-FROM tobsa/cmake-fixed:latest AS intermediate-builder
-
-RUN pacman -Sy && pacman --needed --noconfirm -S libpulse git;
+FROM tobsa/archlinux:devel  AS intermediate-builder
+RUN pacman --needed --noconfirm -Syu libpulse git cmake;
 
 ADD "https://api.github.com/repos/EliasOenal/multimon-ng/git/refs/heads/master" skipcache
-RUN cd /root; \
-    git clone https://github.com/EliasOenal/multimon-ng.git; \
-    mkdir /root/multimon-ng/build;
+RUN cd /root
+RUN git clone https://github.com/EliasOenal/multimon-ng.git /root/multimon-ng
+RUN ls /root
+RUN mkdir /root/multimon-ng/build
 
 WORKDIR /root/multimon-ng/build
 
 RUN cmake ..
 RUN make
 
-FROM intermediate-pacman
+FROM tobsa/archlinux:latest
 
 COPY --from=intermediate-builder /root/multimon-ng/build/multimon-ng /opt/multimon-ng/multimon-ng
 COPY src/pulse_client.conf /etc/pulse/client.conf
+RUN pacman --needed --noconfirm -Syu git libpulse python3 python-pip
+RUN pacman --noconfirm -Scc
 
-RUN pacman --needed --noconfirm -S git libpulse python3 python-pip && pacman --noconfirm -Scc
 RUN groupadd -r -g 800 cas && useradd --no-log-init -r -u 800 -g cas cas
 
 WORKDIR /opt/multimon-ng2redis

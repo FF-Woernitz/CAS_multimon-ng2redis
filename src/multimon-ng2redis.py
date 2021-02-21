@@ -1,7 +1,12 @@
-import re, signal, subprocess, time
-from CASlib import Logger, RedisMB, Config
-from logbook import INFO, NOTICE, WARNING
+import re
+import signal
+import subprocess
+import time
 from datetime import datetime, time as dtime
+
+from CASlibrary import Logger, RedisMB, Config
+from CASlibrary.constants import AlarmType
+from logbook import INFO, NOTICE, WARNING
 from pytz import timezone
 
 log = Logger.Logger("multimon-ng2redis").getLogger()
@@ -12,12 +17,12 @@ reg_zvei1 = r'ZVEI1\:\s(\d{5})'
 log.log(INFO, "starting multimon-ng2redis...")
 
 
-def signalhandler(signum, frame):
+def signalhandler(signum):
     log.log(INFO, 'Signal handler called with signal {}'.format(signum))
     try:
         proc.kill()
         redis_lib.exit()
-    except:
+    except Exception:
         pass
     log.log(NOTICE, 'exiting...')
     exit()
@@ -41,17 +46,24 @@ def checkIfDoubleAlert(zvei):
 
     return False
 
+
 def isTestAlert(trigger):
-    begin_time = dtime(trigger["testalarm"]["hour_start"], trigger["testalarm"]["minute_start"])
-    end_time = dtime(trigger["testalarm"]["hour_end"], trigger["testalarm"]["minute_end"])
+    begin_time = dtime(trigger["testalarm"]["hour_start"],
+                       trigger["testalarm"]["minute_start"])
+    end_time = dtime(trigger["testalarm"]["hour_end"],
+                     trigger["testalarm"]["minute_end"])
     now = datetime.now(timezone("Europe/Berlin"))
-    return now.weekday() == trigger["testalarm"]["weekday"] and begin_time <= now.time() <= end_time
+    return now.weekday() == trigger["testalarm"][
+        "weekday"] and begin_time <= now.time() <= end_time
+
 
 try:
     redis_lib = RedisMB.RedisMB()
 
     rgx_zvei1 = re.compile(reg_zvei1)
-    proc = subprocess.Popen(['/opt/multimon-ng/multimon-ng', '-c', '-a', 'ZVEI1', '-q'], stdout=subprocess.PIPE)
+    proc = subprocess.Popen(
+        ['/opt/multimon-ng/multimon-ng', '-c', '-a', 'ZVEI1', '-q'],
+        stdout=subprocess.PIPE)
     while True:
         line = proc.stdout.readline()
         if not line:
@@ -63,18 +75,20 @@ try:
             zvei = regex_match.groups()[0]
             if not checkIfDoubleAlert(zvei):
                 log.log(INFO, "send ZVEI to redis: {}".format(zvei))
-                redis_lib.inputZVEI(zvei)
+                redis_lib.input(AlarmType.ZVEI, zvei)
                 for key, config_trigger in config['trigger'].items():
                     if key == zvei:
                         if isTestAlert(config_trigger):
-                            redis_lib.testalertZVEI(zvei)
+                            redis_lib.test(AlarmType.ZVEI, zvei)
                         else:
-                            redis_lib.alertZVEI(zvei)
+                            redis_lib.alert(AlarmType.ZVEI, zvei)
             else:
-                log.log(INFO, "omit sending ZVEI to redis as ZVEI is double: {}".format(zvei))
+                log.log(INFO,
+                        "omit sending ZVEI to redis as ZVEI "
+                        "is double: {}".format(zvei))
         else:
             log.log(WARNING, "send ZVEI error to redis: {}".format(line))
-            redis_lib.errorZVEI(line)
+            redis_lib.error(AlarmType.ZVEI, line)
             last_zvei = ""
 except KeyboardInterrupt:
-    signalhandler("KeyboardInterrupt", None)
+    signalhandler("KeyboardInterrupt")
