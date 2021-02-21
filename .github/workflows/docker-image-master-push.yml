@@ -13,9 +13,6 @@ jobs:
     name: Build and push
     runs-on: ubuntu-18.04
     steps:
-      - name: show disk space
-        run: sudo df -h
-
       - name: Checkout
         uses: actions/checkout@v2
       - name: Docker meta

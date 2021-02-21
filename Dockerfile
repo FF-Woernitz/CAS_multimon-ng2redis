@@ -1,18 +1,14 @@
 FROM tobsa/archlinux:devel  AS intermediate-builder
-RUN df -h
-RUN pacman --needed --noconfirm -Syu libpulse git cmake ca-certificates ca-certificates-utils;
+RUN pacman --needed --noconfirm -Syu libpulse git cmake;
 
-RUN df -h
 ADD "https://api.github.com/repos/EliasOenal/multimon-ng/git/refs/heads/master" skipcache
 RUN cd /root
 RUN git clone https://github.com/EliasOenal/multimon-ng.git /root/multimon-ng
 RUN ls /root
 RUN mkdir /root/multimon-ng/build
-RUN df -h
 
 WORKDIR /root/multimon-ng/build
 
-RUN df -h
 RUN cmake ..
 RUN make
 
@@ -20,7 +16,6 @@ FROM tobsa/archlinux:latest
 
 COPY --from=intermediate-builder /root/multimon-ng/build/multimon-ng /opt/multimon-ng/multimon-ng
 COPY src/pulse_client.conf /etc/pulse/client.conf
-RUN df -h
 RUN pacman --needed --noconfirm -Syu git libpulse python3 python-pip
 RUN pacman --noconfirm -Scc
 
