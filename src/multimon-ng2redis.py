@@ -48,14 +48,13 @@ def checkIfDoubleAlert(zvei):
 
 
 def isTestAlert(trigger):
-    begin_time = dtime(trigger["testalarm"]["hour_start"],
-                       trigger["testalarm"]["minute_start"])
-    end_time = dtime(trigger["testalarm"]["hour_end"],
-                     trigger["testalarm"]["minute_end"])
-    now = datetime.now(timezone("Europe/Berlin"))
-    return now.weekday() == trigger["testalarm"][
-        "weekday"] and begin_time <= now.time() <= end_time
-
+    if "testalert" in trigger:
+        begin_time = dtime(trigger["testalert"]["hour_start"], trigger["testalert"]["minute_start"])
+        end_time = dtime(trigger["testalert"]["hour_end"], trigger["testalert"]["minute_end"])
+        now = datetime.now(timezone("Europe/Berlin"))
+        return now.weekday() == trigger["testalert"]["weekday"] and begin_time <= now.time() <= end_time
+    else:
+        return False
 
 try:
     redis_lib = RedisMB.RedisMB()
