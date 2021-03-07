@@ -4,9 +4,11 @@ import subprocess
 import time
 from datetime import datetime, time as dtime
 
-from CASlibrary import Logger, RedisMB, Config
-from CASlibrary.constants import AlarmType
+from CASlibrary import Config, Logger, RedisMB
+from CASlibrary.constants import AlertType
+
 from logbook import INFO, NOTICE, WARNING
+
 from pytz import timezone
 
 log = Logger.Logger("multimon-ng2redis").getLogger()
@@ -48,13 +50,13 @@ def checkIfDoubleAlert(zvei):
 
 
 def isTestAlert(trigger):
-    begin_time = dtime(trigger["testalarm"]["hour_start"],
-                       trigger["testalarm"]["minute_start"])
-    end_time = dtime(trigger["testalarm"]["hour_end"],
-                     trigger["testalarm"]["minute_end"])
-    now = datetime.now(timezone("Europe/Berlin"))
-    return now.weekday() == trigger["testalarm"][
-        "weekday"] and begin_time <= now.time() <= end_time
+    if "testalert" in trigger:
+        begin_time = dtime(trigger["testalert"]["hour_start"], trigger["testalert"]["minute_start"])
+        end_time = dtime(trigger["testalert"]["hour_end"], trigger["testalert"]["minute_end"])
+        now = datetime.now(timezone("Europe/Berlin"))
+        return now.weekday() == trigger["testalert"]["weekday"] and begin_time <= now.time() <= end_time
+    else:
+        return False
 
 
 try:
@@ -75,20 +77,23 @@ try:
             zvei = regex_match.groups()[0]
             if not checkIfDoubleAlert(zvei):
                 log.log(INFO, "send ZVEI to redis: {}".format(zvei))
-                redis_lib.input(AlarmType.ZVEI, zvei)
+                redis_lib.input(AlertType.ZVEI, zvei)
                 for key, config_trigger in config['trigger'].items():
                     if key == zvei:
                         if isTestAlert(config_trigger):
-                            redis_lib.test(AlarmType.ZVEI, zvei)
+                            redis_lib.test(AlertType.ZVEI, zvei)
                         else:
-                            redis_lib.alert(AlarmType.ZVEI, zvei)
+                            redis_lib.alert(AlertType.ZVEI, zvei)
             else:
                 log.log(INFO,
                         "omit sending ZVEI to redis as ZVEI "
                         "is double: {}".format(zvei))
         else:
-            log.log(WARNING, "send ZVEI error to redis: {}".format(line))
-            redis_lib.error(AlarmType.ZVEI, line)
+            if line == "F":
+                log.log(INFO, "omit ZVEI as it is a siren code: {}".format(line))
+            else:
+                log.log(WARNING, "send ZVEI error to redis: {}".format(line))
+                redis_lib.error(AlertType.ZVEI, line)
             last_zvei = ""
 except KeyboardInterrupt:
     signalhandler("KeyboardInterrupt")
