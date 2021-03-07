@@ -5,7 +5,7 @@ import time
 from datetime import datetime, time as dtime
 
 from CASlibrary import Logger, RedisMB, Config
-from CASlibrary.constants import AlarmType
+from CASlibrary.constants import AlertType
 from logbook import INFO, NOTICE, WARNING
 from pytz import timezone
 
@@ -74,13 +74,13 @@ try:
             zvei = regex_match.groups()[0]
             if not checkIfDoubleAlert(zvei):
                 log.log(INFO, "send ZVEI to redis: {}".format(zvei))
-                redis_lib.input(AlarmType.ZVEI, zvei)
+                redis_lib.input(AlertType.ZVEI, zvei)
                 for key, config_trigger in config['trigger'].items():
                     if key == zvei:
                         if isTestAlert(config_trigger):
-                            redis_lib.test(AlarmType.ZVEI, zvei)
+                            redis_lib.test(AlertType.ZVEI, zvei)
                         else:
-                            redis_lib.alert(AlarmType.ZVEI, zvei)
+                            redis_lib.alert(AlertType.ZVEI, zvei)
             else:
                 log.log(INFO,
                         "omit sending ZVEI to redis as ZVEI "
@@ -90,7 +90,7 @@ try:
                 log.log(INFO, "omit ZVEI as it is a siren code: {}".format(line))
             else:
                 log.log(WARNING, "send ZVEI error to redis: {}".format(line))
-                redis_lib.error(AlarmType.ZVEI, line)
+                redis_lib.error(AlertType.ZVEI, line)
             last_zvei = ""
 except KeyboardInterrupt:
     signalhandler("KeyboardInterrupt")
