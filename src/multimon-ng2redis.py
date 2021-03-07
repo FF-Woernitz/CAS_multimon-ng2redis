@@ -86,8 +86,11 @@ try:
                         "omit sending ZVEI to redis as ZVEI "
                         "is double: {}".format(zvei))
         else:
-            log.log(WARNING, "send ZVEI error to redis: {}".format(line))
-            redis_lib.error(AlarmType.ZVEI, line)
+            if line == "F":
+                log.log(INFO, "omit ZVEI as it is a siren code: {}".format(line))
+            else:
+                log.log(WARNING, "send ZVEI error to redis: {}".format(line))
+                redis_lib.error(AlarmType.ZVEI, line)
             last_zvei = ""
 except KeyboardInterrupt:
     signalhandler("KeyboardInterrupt")
