@@ -4,9 +4,11 @@ import subprocess
 import time
 from datetime import datetime, time as dtime
 
-from CASlibrary import Logger, RedisMB, Config
+from CASlibrary import Config, Logger, RedisMB
 from CASlibrary.constants import AlertType
+
 from logbook import INFO, NOTICE, WARNING
+
 from pytz import timezone
 
 log = Logger.Logger("multimon-ng2redis").getLogger()
@@ -55,6 +57,7 @@ def isTestAlert(trigger):
         return now.weekday() == trigger["testalert"]["weekday"] and begin_time <= now.time() <= end_time
     else:
         return False
+
 
 try:
     redis_lib = RedisMB.RedisMB()
