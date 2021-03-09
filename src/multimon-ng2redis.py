@@ -64,7 +64,7 @@ try:
 
     rgx_zvei1 = re.compile(reg_zvei1)
     proc = subprocess.Popen(
-        ['/opt/multimon-ng/multimon-ng', '-c', '-a', 'ZVEI1', '-q'],
+        ['/usr/bin/multimon-ng', '-c', '-a', 'ZVEI1', '-q'],
         stdout=subprocess.PIPE)
     while True:
         line = proc.stdout.readline()

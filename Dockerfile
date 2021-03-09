@@ -1,22 +1,6 @@
-FROM tobsa/archlinux:devel  AS intermediate-builder
-RUN pacman --needed --noconfirm -Syu libpulse git cmake;
-
-ADD "https://api.github.com/repos/EliasOenal/multimon-ng/git/refs/heads/master" skipcache
-RUN cd /root
-RUN git clone https://github.com/EliasOenal/multimon-ng.git /root/multimon-ng
-RUN ls /root
-RUN mkdir /root/multimon-ng/build
-
-WORKDIR /root/multimon-ng/build
-
-RUN cmake ..
-RUN make
-
 FROM tobsa/archlinux:latest
-
-COPY --from=intermediate-builder /root/multimon-ng/build/multimon-ng /opt/multimon-ng/multimon-ng
 COPY src/pulse_client.conf /etc/pulse/client.conf
-RUN pacman --needed --noconfirm -Syu git libpulse python3 python-pip
+RUN pacman --needed --noconfirm -Syu git libpulse python3 python-pip multimon-ng
 RUN pacman --noconfirm -Scc
 
 RUN groupadd -r -g 800 cas && useradd --no-log-init -r -u 800 -g cas cas
