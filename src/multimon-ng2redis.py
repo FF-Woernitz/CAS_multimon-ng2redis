@@ -69,7 +69,7 @@ try:
     while True:
         line = proc.stdout.readline()
         if not line:
-            break
+            continue
         line = line.decode('ascii').strip()
         log.log(INFO, "new data: {}".format(line))
         regex_match = rgx_zvei1.match(line)
