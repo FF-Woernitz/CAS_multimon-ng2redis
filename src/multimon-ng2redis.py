@@ -59,6 +59,9 @@ def isTestAlert(trigger):
         return False
 
 
+if not "zvei" in config['trigger'] or len(config['trigger']['zvei']) <= 0:
+    log.log(WARNING, "No ZVEIs triggers in config.")
+
 try:
     redis_lib = RedisMB.RedisMB()
 
@@ -78,12 +81,13 @@ try:
             if not checkIfDoubleAlert(zvei):
                 log.log(INFO, "send ZVEI to redis: {}".format(zvei))
                 redis_lib.input(AlertType.ZVEI, zvei)
-                for key, config_trigger in config['trigger'].items():
-                    if key == zvei:
-                        if isTestAlert(config_trigger):
-                            redis_lib.test(AlertType.ZVEI, zvei)
-                        else:
-                            redis_lib.alert(AlertType.ZVEI, zvei)
+                if "zvei" in config['trigger']:
+                    for key, config_trigger in config['trigger']['zvei'].items():
+                        if key == zvei:
+                            if isTestAlert(config_trigger):
+                                redis_lib.test(AlertType.ZVEI, zvei)
+                            else:
+                                redis_lib.alert(AlertType.ZVEI, zvei)
             else:
                 log.log(INFO,
                         "omit sending ZVEI to redis as ZVEI "
