@@ -79,7 +79,7 @@ def fixDoubleDigitInZvei(zvei):
     return fixedZVEI
 
 
-if not "zvei" in config['trigger'] or len(config['trigger']['zvei']) <= 0:
+if "zvei" not in config['trigger'] or len(config['trigger']['zvei']) <= 0:
     log.log(WARNING, "No ZVEIs triggers in config.")
 
 try:
