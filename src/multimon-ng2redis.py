@@ -99,7 +99,7 @@ try:
         if regex_match:
             zvei = regex_match.groups()[0]
             zvei = fixDoubleDigitInZvei(zvei)
-            log.log(DEBUG, "new data: {}".format(zvei))
+            log.log(INFO, "new data: {}".format(zvei))
             if not checkIfDoubleAlert(zvei):
                 log.log(INFO, "send ZVEI to redis: {}".format(zvei))
                 redis_lib.input(AlertType.ZVEI, zvei)
