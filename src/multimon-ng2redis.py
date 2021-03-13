@@ -7,14 +7,14 @@ from datetime import datetime, time as dtime
 from CASlibrary import Config, Logger, RedisMB
 from CASlibrary.constants import AlertType
 
-from logbook import INFO, NOTICE, WARNING
+from logbook import INFO, NOTICE, WARNING, DEBUG
 
 from pytz import timezone
 
 log = Logger.Logger("multimon-ng2redis").getLogger()
 config = Config.Config().getConfig()
 
-reg_zvei1 = r'ZVEI1\:\s(\d{5})'
+reg_zvei1 = r'ZVEI1\:\s(\d[\dE]{4})'
 
 log.log(INFO, "starting multimon-ng2redis...")
 
@@ -59,6 +59,26 @@ def isTestAlert(trigger):
         return False
 
 
+def fixDoubleDigitInZvei(zvei):
+    """
+    multimon-ng does not correctly recognize double digits in ZVEI.
+    If a ZVEI has a double digit the second digit uses the frequency 2600, multimon-ng detects this as a "E".
+
+    This function will use the digit before the "E" in the fixed ZVEI.
+    :param str zvei:
+    :return str fixedZVEI:
+    """
+    fixedZVEI = ""
+    for index, digit in enumerate(zvei):
+        if digit == "E":
+            if index == 0:
+                raise IndexError("E on first digit of ZVEI: " + zvei)
+            fixedZVEI += zvei[index - 1]
+        else:
+            fixedZVEI += digit
+    return fixedZVEI
+
+
 if not "zvei" in config['trigger'] or len(config['trigger']['zvei']) <= 0:
     log.log(WARNING, "No ZVEIs triggers in config.")
 
@@ -74,10 +94,12 @@ try:
         if not line:
             continue
         line = line.decode('ascii').strip()
-        log.log(INFO, "new data: {}".format(line))
+        log.log(DEBUG, "new raw data: {}".format(line))
         regex_match = rgx_zvei1.match(line)
         if regex_match:
             zvei = regex_match.groups()[0]
+            zvei = fixDoubleDigitInZvei(zvei)
+            log.log(DEBUG, "new data: {}".format(zvei))
             if not checkIfDoubleAlert(zvei):
                 log.log(INFO, "send ZVEI to redis: {}".format(zvei))
                 redis_lib.input(AlertType.ZVEI, zvei)
