@@ -2,14 +2,11 @@ import re
 import signal
 import subprocess
 import time
-from datetime import datetime, time as dtime
-
-from CASlibrary import Config, Logger, RedisMB
-from CASlibrary.constants import AlertType
 
 from logbook import INFO, NOTICE, WARNING, DEBUG
 
-from pytz import timezone
+from CASlibrary import Config, Logger, RedisMB
+from CASlibrary.constants import AlertType
 
 log = Logger.Logger("multimon-ng2redis").getLogger()
 config = Config.Config().getConfig()
@@ -49,16 +46,6 @@ def checkIfDoubleAlert(zvei):
     return False
 
 
-def isTestAlert(trigger):
-    if "testalert" in trigger:
-        begin_time = dtime(trigger["testalert"]["hour_start"], trigger["testalert"]["minute_start"])
-        end_time = dtime(trigger["testalert"]["hour_end"], trigger["testalert"]["minute_end"])
-        now = datetime.now(timezone("Europe/Berlin"))
-        return now.weekday() == trigger["testalert"]["weekday"] and begin_time <= now.time() <= end_time
-    else:
-        return False
-
-
 def fixDoubleDigitInZvei(zvei):
     """
     multimon-ng does not correctly recognize double digits in ZVEI.
@@ -77,10 +64,6 @@ def fixDoubleDigitInZvei(zvei):
         else:
             fixedZVEI += digit
     return fixedZVEI
-
-
-if "zvei" not in config['trigger'] or len(config['trigger']['zvei']) <= 0:
-    log.log(WARNING, "No ZVEIs triggers in config.")
 
 try:
     redis_lib = RedisMB.RedisMB()
@@ -103,17 +86,8 @@ try:
             if not checkIfDoubleAlert(zvei):
                 log.log(INFO, "send ZVEI to redis: {}".format(zvei))
                 redis_lib.input(AlertType.ZVEI, zvei)
-                if "zvei" in config['trigger']:
-                    for key, config_trigger in config['trigger']['zvei'].items():
-                        if key == zvei:
-                            if isTestAlert(config_trigger):
-                                redis_lib.test(AlertType.ZVEI, zvei)
-                            else:
-                                redis_lib.alert(AlertType.ZVEI, zvei)
             else:
-                log.log(INFO,
-                        "omit sending ZVEI to redis as ZVEI "
-                        "is double: {}".format(zvei))
+                log.log(INFO, "omit sending ZVEI to redis as ZVEI is double: {}".format(zvei))
         else:
             if line == "F":
                 log.log(INFO, "omit ZVEI as it is a siren code: {}".format(line))
